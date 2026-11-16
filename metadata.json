@@ -1,0 +1,6 @@
+{
+  "name": "AgriMarket Nigeria — Digital Farmer Market Waitlist",
+  "description": "Nigeria's digital farmer market connecting local growers directly with buyers for fresh, fair-priced produce. Join the pre-launch waiting list.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

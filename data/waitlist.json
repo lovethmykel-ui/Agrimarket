@@ -1,0 +1,144 @@
+{
+  "entries": [
+    {
+      "id": "seed-1",
+      "position": 1,
+      "fullName": "Amina Bello",
+      "email": "amina.bello@pilot.agrimarket.ng",
+      "role": "farmer",
+      "state": "Kaduna",
+      "categories": [
+        "vegetables",
+        "grains"
+      ],
+      "farmOrBusinessName": "Zaria Tomato Growers Co-op",
+      "createdAt": "2026-10-18T09:15:00.000Z"
+    },
+    {
+      "id": "seed-2",
+      "position": 2,
+      "fullName": "Folake Adeyemi",
+      "email": "folake.adeyemi@pilot.agrimarket.ng",
+      "role": "buyer",
+      "state": "Lagos",
+      "categories": [
+        "vegetables",
+        "fruits",
+        "poultry"
+      ],
+      "createdAt": "2026-10-21T14:22:00.000Z"
+    },
+    {
+      "id": "seed-3",
+      "position": 3,
+      "fullName": "Chinedu Okafor",
+      "email": "chinedu.okafor@pilot.agrimarket.ng",
+      "role": "buyer",
+      "state": "FCT (Abuja)",
+      "categories": [
+        "grains",
+        "livestock",
+        "fish"
+      ],
+      "farmOrBusinessName": "Wuse Fresh Kitchens",
+      "createdAt": "2026-10-25T11:05:00.000Z"
+    },
+    {
+      "id": "seed-4",
+      "position": 4,
+      "fullName": "Tunde Ogunleye",
+      "email": "tunde.ogunleye@pilot.agrimarket.ng",
+      "role": "partner",
+      "state": "Oyo",
+      "categories": [
+        "vegetables",
+        "fruits",
+        "grains"
+      ],
+      "farmOrBusinessName": "Ibadan Cold-Chain Transit",
+      "createdAt": "2026-10-29T16:40:00.000Z"
+    },
+    {
+      "id": "seed-5",
+      "position": 5,
+      "fullName": "Adaeze Nwosu",
+      "email": "adaeze.nwosu@pilot.agrimarket.ng",
+      "role": "buyer",
+      "state": "Enugu",
+      "categories": [
+        "vegetables",
+        "fish"
+      ],
+      "createdAt": "2026-11-02T08:50:00.000Z"
+    },
+    {
+      "id": "seed-6",
+      "position": 6,
+      "fullName": "Musa Danjuma",
+      "email": "musa.danjuma@pilot.agrimarket.ng",
+      "role": "farmer",
+      "state": "Benue",
+      "categories": [
+        "fruits",
+        "grains"
+      ],
+      "farmOrBusinessName": "Makurdi Citrus & Yam Collective",
+      "createdAt": "2026-11-06T13:12:00.000Z"
+    },
+    {
+      "id": "seed-7",
+      "position": 7,
+      "fullName": "Seyi Oladipo",
+      "email": "seyi.oladipo@pilot.agrimarket.ng",
+      "role": "farmer",
+      "state": "Ogun",
+      "categories": [
+        "poultry",
+        "fish"
+      ],
+      "farmOrBusinessName": "Abeokuta Integrated Hatchery",
+      "createdAt": "2026-11-09T10:30:00.000Z"
+    },
+    {
+      "id": "seed-8",
+      "position": 8,
+      "fullName": "Kemi Balogun",
+      "email": "kemi.balogun@pilot.agrimarket.ng",
+      "role": "buyer",
+      "state": "Rivers",
+      "categories": [
+        "fish",
+        "vegetables",
+        "fruits"
+      ],
+      "createdAt": "2026-11-12T17:18:00.000Z"
+    },
+    {
+      "id": "e28c0129-9b63-4b52-94c8-8189b0a34991",
+      "position": 9,
+      "fullName": "Amaka Nwankwo",
+      "email": "amaka.nwankwo@example.ng",
+      "role": "buyer",
+      "state": "Enugu",
+      "categories": [
+        "vegetables",
+        "grains"
+      ],
+      "createdAt": "2026-11-16T00:22:20.629Z"
+    },
+    {
+      "id": "767581dc-74b0-4256-9cc2-4c5fcc74a3e8",
+      "position": 10,
+      "fullName": "Kolawole Ade",
+      "email": "kolawole.ade@example.ng",
+      "role": "buyer",
+      "state": "Oyo",
+      "categories": [
+        "vegetables",
+        "grains"
+      ],
+      "createdAt": "2026-11-16T00:23:48.224Z"
+    }
+  ],
+  "newsletterEmails": []
+}
