@@ -1,4 +1,24 @@
-export type NigerianCorridorId = 'kaduna' | 'benue' | 'kebbi' | 'oyo' | 'plateau';
+export type GeopoliticalZone =
+  | 'North West'
+  | 'North Central'
+  | 'South West'
+  | 'South East'
+  | 'South South';
+
+export type NigerianCorridorId =
+  | 'kaduna'
+  | 'kano'
+  | 'kebbi'
+  | 'sokoto'
+  | 'benue'
+  | 'plateau'
+  | 'nasarawa'
+  | 'oyo'
+  | 'ogun'
+  | 'enugu'
+  | 'edo'
+  | 'cross-river';
+
 export type CrossStateCropId = 'tomatoes' | 'maize' | 'rice' | 'yams';
 
 export interface CropSeriesMeta {
@@ -15,6 +35,7 @@ export interface MonthlyCropPoint {
 export interface StateCorridorProfile {
   id: NigerianCorridorId;
   stateName: string;
+  geoZone: GeopoliticalZone;
   waitlistStateValue: string;
   corridorTagline: string;
   platformValue: string;
@@ -46,10 +67,27 @@ export const MONTHS = [
   'Dec',
 ] as const;
 
+export const GEOPOLITICAL_ZONES: readonly GeopoliticalZone[] = [
+  'North West',
+  'North Central',
+  'South West',
+  'South East',
+  'South South',
+] as const;
+
+export const FEATURED_STATE_IDS: readonly NigerianCorridorId[] = [
+  'kaduna',
+  'benue',
+  'kebbi',
+  'oyo',
+  'plateau',
+] as const;
+
 export const STATE_CORRIDORS: Record<NigerianCorridorId, StateCorridorProfile> = {
   kaduna: {
     id: 'kaduna',
     stateName: 'Kaduna',
+    geoZone: 'North West',
     waitlistStateValue: 'Kaduna',
     corridorTagline: 'Dry-season irrigated tomatoes & rain-fed northern grains',
     platformValue:
@@ -74,36 +112,38 @@ export const STATE_CORRIDORS: Record<NigerianCorridorId, StateCorridorProfile> =
       { month: 'Dec', tomatoes: 84, maize: 72, ginger: 86 },
     ],
   },
-  benue: {
-    id: 'benue',
-    stateName: 'Benue',
-    waitlistStateValue: 'Benue',
-    corridorTagline: 'Food basket yam tubers, sweet citrus & tropical mangoes',
+  kano: {
+    id: 'kano',
+    stateName: 'Kano',
+    geoZone: 'North West',
+    waitlistStateValue: 'Kano',
+    corridorTagline: 'Irrigated river-basin tomatoes, sweet onions & groundnuts',
     platformValue:
-      'Coordinated cold-chain pickup turns Benue’s steep citrus and mango peaks into scheduled deliveries for Lagos and Abuja retailers.',
+      'Linking Kano’s Tiga and Kadawa irrigation schemes directly to wholesale kitchens trims multi-tier market spoilage and transit delays.',
     crops: [
-      { key: 'yams', label: 'White Yam', color: '#84E12B' },
-      { key: 'oranges', label: 'Sweet Oranges', color: '#F4C44E' },
-      { key: 'mangoes', label: 'Julie Mangoes', color: '#38BDF8' },
+      { key: 'tomatoes', label: 'Plum Tomatoes', color: '#84E12B' },
+      { key: 'onions', label: 'Sweet Onions', color: '#F4C44E' },
+      { key: 'groundnuts', label: 'Groundnuts', color: '#38BDF8' },
     ],
     monthly: [
-      { month: 'Jan', yams: 76, oranges: 86, mangoes: 28 },
-      { month: 'Feb', yams: 64, oranges: 74, mangoes: 58 },
-      { month: 'Mar', yams: 50, oranges: 52, mangoes: 90 },
-      { month: 'Apr', yams: 38, oranges: 36, mangoes: 96 },
-      { month: 'May', yams: 28, oranges: 24, mangoes: 78 },
-      { month: 'Jun', yams: 34, oranges: 22, mangoes: 42 },
-      { month: 'Jul', yams: 62, oranges: 30, mangoes: 18 },
-      { month: 'Aug', yams: 84, oranges: 44, mangoes: 14 },
-      { month: 'Sep', yams: 94, oranges: 68, mangoes: 12 },
-      { month: 'Oct', yams: 96, oranges: 88, mangoes: 15 },
-      { month: 'Nov', yams: 90, oranges: 94, mangoes: 18 },
-      { month: 'Dec', yams: 82, oranges: 92, mangoes: 22 },
+      { month: 'Jan', tomatoes: 86, onions: 76, groundnuts: 68 },
+      { month: 'Feb', tomatoes: 94, onions: 88, groundnuts: 56 },
+      { month: 'Mar', tomatoes: 90, onions: 92, groundnuts: 44 },
+      { month: 'Apr', tomatoes: 74, onions: 84, groundnuts: 34 },
+      { month: 'May', tomatoes: 48, onions: 60, groundnuts: 26 },
+      { month: 'Jun', tomatoes: 30, onions: 40, groundnuts: 22 },
+      { month: 'Jul', tomatoes: 24, onions: 28, groundnuts: 28 },
+      { month: 'Aug', tomatoes: 26, onions: 24, groundnuts: 48 },
+      { month: 'Sep', tomatoes: 38, onions: 32, groundnuts: 82 },
+      { month: 'Oct', tomatoes: 54, onions: 46, groundnuts: 95 },
+      { month: 'Nov', tomatoes: 70, onions: 58, groundnuts: 92 },
+      { month: 'Dec', tomatoes: 82, onions: 68, groundnuts: 80 },
     ],
   },
   kebbi: {
     id: 'kebbi',
     stateName: 'Kebbi',
+    geoZone: 'North West',
     waitlistStateValue: 'Kebbi',
     corridorTagline: 'Dual-cycle parboiled rice, red onions & Sahelian millet',
     platformValue:
@@ -128,36 +168,66 @@ export const STATE_CORRIDORS: Record<NigerianCorridorId, StateCorridorProfile> =
       { month: 'Dec', rice: 90, onions: 60, millet: 82 },
     ],
   },
-  oyo: {
-    id: 'oyo',
-    stateName: 'Oyo',
-    waitlistStateValue: 'Oyo',
-    corridorTagline: 'Early southern maize, plantains & year-round cassava',
+  sokoto: {
+    id: 'sokoto',
+    stateName: 'Sokoto',
+    geoZone: 'North West',
+    waitlistStateValue: 'Sokoto',
+    corridorTagline: 'Cured Sokoto red onions, spicy garlic & dryland millet',
     platformValue:
-      'Oyo’s June–August early harvest supplies fresh maize and plantains across Lagos and Ogun right when northern grain stocks tighten.',
+      'Direct buyer scheduling in Sokoto preserves cured onion bulks at the farm gate before seasonal shortages drive southern retail prices sharply higher.',
     crops: [
-      { key: 'plantains', label: 'Plantains', color: '#84E12B' },
-      { key: 'maize', label: 'Yellow Maize', color: '#F4C44E' },
-      { key: 'cassava', label: 'Cassava Tubers', color: '#38BDF8' },
+      { key: 'onions', label: 'Sokoto Red Onions', color: '#84E12B' },
+      { key: 'garlic', label: 'Fresh Garlic', color: '#F4C44E' },
+      { key: 'millet', label: 'Dauro Millet', color: '#38BDF8' },
     ],
     monthly: [
-      { month: 'Jan', plantains: 76, maize: 46, cassava: 84 },
-      { month: 'Feb', plantains: 68, maize: 38, cassava: 80 },
-      { month: 'Mar', plantains: 60, maize: 34, cassava: 76 },
-      { month: 'Apr', plantains: 54, maize: 42, cassava: 74 },
-      { month: 'May', plantains: 58, maize: 64, cassava: 78 },
-      { month: 'Jun', plantains: 66, maize: 88, cassava: 82 },
-      { month: 'Jul', plantains: 74, maize: 94, cassava: 84 },
-      { month: 'Aug', plantains: 82, maize: 86, cassava: 86 },
-      { month: 'Sep', plantains: 90, maize: 72, cassava: 88 },
-      { month: 'Oct', plantains: 94, maize: 64, cassava: 90 },
-      { month: 'Nov', plantains: 90, maize: 58, cassava: 88 },
-      { month: 'Dec', plantains: 84, maize: 52, cassava: 86 },
+      { month: 'Jan', onions: 72, garlic: 68, millet: 76 },
+      { month: 'Feb', onions: 88, garlic: 86, millet: 64 },
+      { month: 'Mar', onions: 96, garlic: 94, millet: 48 },
+      { month: 'Apr', onions: 92, garlic: 88, millet: 36 },
+      { month: 'May', onions: 70, garlic: 62, millet: 26 },
+      { month: 'Jun', onions: 46, garlic: 38, millet: 22 },
+      { month: 'Jul', onions: 30, garlic: 26, millet: 28 },
+      { month: 'Aug', onions: 24, garlic: 22, millet: 50 },
+      { month: 'Sep', onions: 32, garlic: 30, millet: 84 },
+      { month: 'Oct', onions: 44, garlic: 42, millet: 95 },
+      { month: 'Nov', onions: 56, garlic: 54, millet: 90 },
+      { month: 'Dec', onions: 64, garlic: 62, millet: 82 },
+    ],
+  },
+  benue: {
+    id: 'benue',
+    stateName: 'Benue',
+    geoZone: 'North Central',
+    waitlistStateValue: 'Benue',
+    corridorTagline: 'Food basket yam tubers, sweet citrus & tropical mangoes',
+    platformValue:
+      'Coordinated cold-chain pickup turns Benue’s steep citrus and mango peaks into scheduled deliveries for Lagos and Abuja retailers.',
+    crops: [
+      { key: 'yams', label: 'White Yam', color: '#84E12B' },
+      { key: 'oranges', label: 'Sweet Oranges', color: '#F4C44E' },
+      { key: 'mangoes', label: 'Julie Mangoes', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', yams: 76, oranges: 86, mangoes: 28 },
+      { month: 'Feb', yams: 64, oranges: 74, mangoes: 58 },
+      { month: 'Mar', yams: 50, oranges: 52, mangoes: 90 },
+      { month: 'Apr', yams: 38, oranges: 36, mangoes: 96 },
+      { month: 'May', yams: 28, oranges: 24, mangoes: 78 },
+      { month: 'Jun', yams: 34, oranges: 22, mangoes: 42 },
+      { month: 'Jul', yams: 62, oranges: 30, mangoes: 18 },
+      { month: 'Aug', yams: 84, oranges: 44, mangoes: 14 },
+      { month: 'Sep', yams: 94, oranges: 68, mangoes: 12 },
+      { month: 'Oct', yams: 96, oranges: 88, mangoes: 15 },
+      { month: 'Nov', yams: 90, oranges: 94, mangoes: 18 },
+      { month: 'Dec', yams: 82, oranges: 92, mangoes: 22 },
     ],
   },
   plateau: {
     id: 'plateau',
     stateName: 'Plateau',
+    geoZone: 'North Central',
     waitlistStateValue: 'Plateau',
     corridorTagline: 'Cool highland tomatoes, Irish potatoes & crisp vegetables',
     platformValue:
@@ -182,7 +252,185 @@ export const STATE_CORRIDORS: Record<NigerianCorridorId, StateCorridorProfile> =
       { month: 'Dec', tomatoes: 54, potatoes: 60, peppers: 60 },
     ],
   },
+  nasarawa: {
+    id: 'nasarawa',
+    stateName: 'Nasarawa',
+    geoZone: 'North Central',
+    waitlistStateValue: 'Nasarawa',
+    corridorTagline: 'Abuja-corridor sesame, soybeans & fresh yam harvests',
+    platformValue:
+      'Short-haul aggregation from Lafia and Keffi feeds Abuja households and food processors with verified oilseeds and tubers within hours of harvest.',
+    crops: [
+      { key: 'sesame', label: 'White Sesame', color: '#84E12B' },
+      { key: 'yams', label: 'Nasarawa Yam', color: '#F4C44E' },
+      { key: 'soybeans', label: 'Soybeans', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', sesame: 74, yams: 72, soybeans: 70 },
+      { month: 'Feb', sesame: 60, yams: 58, soybeans: 56 },
+      { month: 'Mar', sesame: 44, yams: 44, soybeans: 42 },
+      { month: 'Apr', sesame: 30, yams: 32, soybeans: 30 },
+      { month: 'May', sesame: 24, yams: 26, soybeans: 24 },
+      { month: 'Jun', sesame: 28, yams: 38, soybeans: 28 },
+      { month: 'Jul', sesame: 40, yams: 68, soybeans: 42 },
+      { month: 'Aug', sesame: 56, yams: 88, soybeans: 64 },
+      { month: 'Sep', sesame: 78, yams: 94, soybeans: 86 },
+      { month: 'Oct', sesame: 94, yams: 92, soybeans: 95 },
+      { month: 'Nov', sesame: 92, yams: 86, soybeans: 90 },
+      { month: 'Dec', sesame: 84, yams: 78, soybeans: 80 },
+    ],
+  },
+  oyo: {
+    id: 'oyo',
+    stateName: 'Oyo',
+    geoZone: 'South West',
+    waitlistStateValue: 'Oyo',
+    corridorTagline: 'Early southern maize, plantains & year-round cassava',
+    platformValue:
+      'Oyo’s June–August early harvest supplies fresh maize and plantains across Lagos and Ogun right when northern grain stocks tighten.',
+    crops: [
+      { key: 'plantains', label: 'Plantains', color: '#84E12B' },
+      { key: 'maize', label: 'Yellow Maize', color: '#F4C44E' },
+      { key: 'cassava', label: 'Cassava Tubers', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', plantains: 76, maize: 46, cassava: 84 },
+      { month: 'Feb', plantains: 68, maize: 38, cassava: 80 },
+      { month: 'Mar', plantains: 60, maize: 34, cassava: 76 },
+      { month: 'Apr', plantains: 54, maize: 42, cassava: 74 },
+      { month: 'May', plantains: 58, maize: 64, cassava: 78 },
+      { month: 'Jun', plantains: 66, maize: 88, cassava: 82 },
+      { month: 'Jul', plantains: 74, maize: 94, cassava: 84 },
+      { month: 'Aug', plantains: 82, maize: 86, cassava: 86 },
+      { month: 'Sep', plantains: 90, maize: 72, cassava: 88 },
+      { month: 'Oct', plantains: 94, maize: 64, cassava: 90 },
+      { month: 'Nov', plantains: 90, maize: 58, cassava: 88 },
+      { month: 'Dec', plantains: 84, maize: 52, cassava: 86 },
+    ],
+  },
+  ogun: {
+    id: 'ogun',
+    stateName: 'Ogun',
+    geoZone: 'South West',
+    waitlistStateValue: 'Ogun',
+    corridorTagline: 'Peri-urban Lagos cassava, leafy greens & sweet maize',
+    platformValue:
+      'Proximity to Lagos makes Ogun ideal for same-day farm-to-kitchen dispatch of perishable leafy vegetables and twice-yearly maize.',
+    crops: [
+      { key: 'greens', label: 'Leafy Greens', color: '#84E12B' },
+      { key: 'cassava', label: 'Cassava Tubers', color: '#F4C44E' },
+      { key: 'maize', label: 'Early Maize', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', greens: 66, cassava: 86, maize: 42 },
+      { month: 'Feb', greens: 62, cassava: 82, maize: 36 },
+      { month: 'Mar', greens: 68, cassava: 78, maize: 34 },
+      { month: 'Apr', greens: 78, cassava: 76, maize: 46 },
+      { month: 'May', greens: 88, cassava: 80, maize: 72 },
+      { month: 'Jun', greens: 94, cassava: 84, maize: 90 },
+      { month: 'Jul', greens: 90, cassava: 86, maize: 92 },
+      { month: 'Aug', greens: 84, cassava: 88, maize: 80 },
+      { month: 'Sep', greens: 92, cassava: 90, maize: 68 },
+      { month: 'Oct', greens: 90, cassava: 92, maize: 62 },
+      { month: 'Nov', greens: 80, cassava: 90, maize: 54 },
+      { month: 'Dec', greens: 72, cassava: 88, maize: 48 },
+    ],
+  },
+  enugu: {
+    id: 'enugu',
+    stateName: 'Enugu',
+    geoZone: 'South East',
+    waitlistStateValue: 'Enugu',
+    corridorTagline: 'Aromatic Nsukka yellow pepper, new yams & cassava',
+    platformValue:
+      'Direct regional hubs connect Enugu specialty growers of Nsukka pepper and early tubers to South East restaurants and diaspora buyers.',
+    crops: [
+      { key: 'pepper', label: 'Nsukka Yellow Pepper', color: '#84E12B' },
+      { key: 'yams', label: 'New Yam', color: '#F4C44E' },
+      { key: 'cassava', label: 'Cassava Tubers', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', pepper: 60, yams: 68, cassava: 82 },
+      { month: 'Feb', pepper: 52, yams: 54, cassava: 78 },
+      { month: 'Mar', pepper: 46, yams: 42, cassava: 76 },
+      { month: 'Apr', pepper: 56, yams: 34, cassava: 78 },
+      { month: 'May', pepper: 72, yams: 38, cassava: 82 },
+      { month: 'Jun', pepper: 84, yams: 60, cassava: 84 },
+      { month: 'Jul', pepper: 92, yams: 82, cassava: 86 },
+      { month: 'Aug', pepper: 95, yams: 92, cassava: 88 },
+      { month: 'Sep', pepper: 90, yams: 94, cassava: 90 },
+      { month: 'Oct', pepper: 82, yams: 88, cassava: 90 },
+      { month: 'Nov', pepper: 74, yams: 80, cassava: 88 },
+      { month: 'Dec', pepper: 66, yams: 74, cassava: 86 },
+    ],
+  },
+  edo: {
+    id: 'edo',
+    stateName: 'Edo',
+    geoZone: 'South South',
+    waitlistStateValue: 'Edo',
+    corridorTagline: 'Rainforest plantains, garden eggs & lowland cassava',
+    platformValue:
+      'Edo’s central east-west highway corridor routes fresh plantains and garden eggs evenly toward both Lagos and South East markets.',
+    crops: [
+      { key: 'plantains', label: 'Sweet Plantains', color: '#84E12B' },
+      { key: 'gardenEggs', label: 'Garden Eggs', color: '#F4C44E' },
+      { key: 'cassava', label: 'Cassava Tubers', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', plantains: 80, gardenEggs: 68, cassava: 86 },
+      { month: 'Feb', plantains: 72, gardenEggs: 60, cassava: 82 },
+      { month: 'Mar', plantains: 64, gardenEggs: 54, cassava: 78 },
+      { month: 'Apr', plantains: 58, gardenEggs: 58, cassava: 76 },
+      { month: 'May', plantains: 62, gardenEggs: 72, cassava: 80 },
+      { month: 'Jun', plantains: 70, gardenEggs: 84, cassava: 84 },
+      { month: 'Jul', plantains: 78, gardenEggs: 90, cassava: 86 },
+      { month: 'Aug', plantains: 84, gardenEggs: 86, cassava: 88 },
+      { month: 'Sep', plantains: 92, gardenEggs: 82, cassava: 90 },
+      { month: 'Oct', plantains: 95, gardenEggs: 78, cassava: 92 },
+      { month: 'Nov', plantains: 92, gardenEggs: 74, cassava: 90 },
+      { month: 'Dec', plantains: 86, gardenEggs: 70, cassava: 88 },
+    ],
+  },
+  'cross-river': {
+    id: 'cross-river',
+    stateName: 'Cross River',
+    geoZone: 'South South',
+    waitlistStateValue: 'Cross River',
+    corridorTagline: 'Humid coastal pineapples, plantains & swamp rice',
+    platformValue:
+      'Scheduled refrigerated dispatch helps Cross River growers sell fresh pineapples and swamp rice nationwide without post-harvest bruising.',
+    crops: [
+      { key: 'pineapples', label: 'Sugar Pineapples', color: '#84E12B' },
+      { key: 'plantains', label: 'Plantains', color: '#F4C44E' },
+      { key: 'rice', label: 'Swamp Rice', color: '#38BDF8' },
+    ],
+    monthly: [
+      { month: 'Jan', pineapples: 82, plantains: 78, rice: 80 },
+      { month: 'Feb', pineapples: 88, plantains: 70, rice: 68 },
+      { month: 'Mar', pineapples: 92, plantains: 62, rice: 54 },
+      { month: 'Apr', pineapples: 86, plantains: 56, rice: 42 },
+      { month: 'May', pineapples: 72, plantains: 60, rice: 34 },
+      { month: 'Jun', pineapples: 58, plantains: 68, rice: 30 },
+      { month: 'Jul', pineapples: 52, plantains: 76, rice: 36 },
+      { month: 'Aug', pineapples: 56, plantains: 84, rice: 48 },
+      { month: 'Sep', pineapples: 66, plantains: 90, rice: 72 },
+      { month: 'Oct', pineapples: 76, plantains: 94, rice: 90 },
+      { month: 'Nov', pineapples: 84, plantains: 90, rice: 94 },
+      { month: 'Dec', pineapples: 86, plantains: 84, rice: 88 },
+    ],
+  },
 };
+
+export function getAllStateCorridors(): StateCorridorProfile[] {
+  return Object.values(STATE_CORRIDORS);
+}
+
+export function getStatesByZone(zone: GeopoliticalZone | 'All'): StateCorridorProfile[] {
+  const all = getAllStateCorridors();
+  if (zone === 'All') return all;
+  return all.filter((item) => item.geoZone === zone);
+}
 
 export const CROSS_STATE_COMPARISONS: Record<CrossStateCropId, CrossStateComparisonProfile> = {
   tomatoes: {

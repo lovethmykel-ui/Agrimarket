@@ -43,7 +43,7 @@ export function CategoriesSection({
   const ActiveCategoryWatermark = CATEGORY_WATERMARKS[activeCategory.id];
 
   return (
-    <section id="categories" className="scroll-mt-20 border-t border-white/5 bg-[#081C10] py-18 sm:py-24">
+    <section id="categories" className="relative isolate scroll-mt-20 border-t border-white/5 bg-[#081C10] py-18 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <SoftReveal className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>

@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
   Check,
   CheckCircle2,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { PRODUCE_CATALOG } from '../data/content';
 import { SoftReveal } from './MotionPrimitives';
+import { launchHarvestCelebration } from '../utils/celebrationConfetti';
 import {
   formatQueueNumber,
   NIGERIAN_STATES,
@@ -75,6 +76,13 @@ export function WaitlistAndAppSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedPass, setConfirmedPass] = useState<ConfirmedPass | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [celebrationRunId, setCelebrationRunId] = useState(0);
+
+  const confettiCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const waitlistCardRef = useRef<HTMLDivElement | null>(null);
+  const confirmationPassRef = useRef<HTMLDivElement | null>(null);
+  const celebrationCleanupRef = useRef<(() => void) | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   // Status check fields
   const [lookupEmail, setLookupEmail] = useState('');
@@ -95,6 +103,34 @@ export function WaitlistAndAppSection({
       setState(preselectedState);
     }
   }, [preselectedState, preselectSeq]);
+
+  useEffect(() => {
+    if (celebrationRunId <= 0 || !confirmedPass || confirmedPass.alreadyRegistered) {
+      return;
+    }
+    const canvas = confettiCanvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    let cancelled = false;
+    const rafId = window.requestAnimationFrame(() => {
+      if (cancelled) return;
+      celebrationCleanupRef.current?.();
+      celebrationCleanupRef.current = launchHarvestCelebration({
+        canvas,
+        role: confirmedPass.role,
+        anchorElement: confirmationPassRef.current ?? waitlistCardRef.current,
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(rafId);
+      celebrationCleanupRef.current?.();
+      celebrationCleanupRef.current = null;
+    };
+  }, [celebrationRunId, confirmedPass]);
 
   const handleWaitlistSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -144,6 +180,7 @@ export function WaitlistAndAppSection({
       }
 
       setConfirmedPass(payload.entry);
+      setCelebrationRunId((prev) => prev + 1);
       if (payload.stats) {
         onSignupSuccess(payload.stats);
       }
@@ -210,8 +247,14 @@ export function WaitlistAndAppSection({
   return (
     <section
       id="waitlist"
-      className="scroll-mt-20 border-t border-white/5 bg-[#05130A] py-18 sm:py-24"
+      className="relative isolate scroll-mt-20 border-t border-white/5 bg-[#05130A] py-18 sm:py-24"
     >
+      <canvas
+        ref={confettiCanvasRef}
+        data-testid="waitlist-confetti-canvas"
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 z-50 h-full w-full"
+      />
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-12">
           {/* Left column: Sculpted Mobile Companion Preview + Unboxed Live Cohort Ledger */}
@@ -431,7 +474,10 @@ export function WaitlistAndAppSection({
 
           {/* Right column: Interactive Waitlist Form Card */}
           <SoftReveal delay={0.08} className="lg:col-span-7">
-            <div className="editorial-surface relative overflow-hidden rounded-3xl border editorial-hairline p-6 sm:p-8 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.85)]">
+            <div
+              ref={waitlistCardRef}
+              className="editorial-surface relative overflow-hidden rounded-3xl border editorial-hairline p-6 sm:p-8 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.85)]"
+            >
               <RoleWatermarkIcon
                 aria-hidden="true"
                 className="pointer-events-none select-none absolute -right-6 -bottom-6 h-40 w-40 text-[#84E12B]/[0.045]"
@@ -660,14 +706,37 @@ export function WaitlistAndAppSection({
                   </motion.div>
                 ) : confirmedPass ? (
                   <motion.div
+                    ref={confirmationPassRef}
                     key="tab-confirmed"
-                    initial={{ opacity: 0, scale: 0.98, filter: 'blur(8px)' }}
+                    initial={{ opacity: 0, scale: 0.96, filter: 'blur(8px)' }}
                     animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                     exit={{ opacity: 0, filter: 'blur(6px)' }}
                     transition={SOFT_TRANSITION}
                     data-testid="waitlist-confirmation"
                     className="relative mt-6 overflow-hidden rounded-2xl border border-[#84E12B]/55 bg-gradient-to-br from-[#0B2715] to-[#05130A] p-6 shadow-[0_0_40px_-14px_rgba(132,225,43,0.4)]"
                   >
+                    {celebrationRunId > 0 &&
+                      !confirmedPass.alreadyRegistered &&
+                      !prefersReducedMotion && (
+                        <>
+                          <motion.div
+                            key={`halo-${celebrationRunId}`}
+                            aria-hidden="true"
+                            initial={{ opacity: 0.85, scale: 0.6 }}
+                            animate={{ opacity: 0, scale: 1.5 }}
+                            transition={{ duration: 1.15, ease: [0.16, 1, 0.3, 1] }}
+                            className="pointer-events-none absolute -top-20 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(132,225,43,0.34)_0%,rgba(244,196,78,0.16)_42%,transparent_72%)]"
+                          />
+                          <motion.div
+                            key={`sheen-${celebrationRunId}`}
+                            aria-hidden="true"
+                            initial={{ x: '-120%', opacity: 0.5 }}
+                            animate={{ x: '220%', opacity: 0 }}
+                            transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1] }}
+                            className="pointer-events-none absolute inset-y-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-[#F4C44E]/20 to-transparent"
+                          />
+                        </>
+                      )}
                     <TicketCheck
                       aria-hidden="true"
                       className="pointer-events-none select-none absolute -right-4 -bottom-4 h-32 w-32 text-[#84E12B]/[0.08]"
@@ -737,6 +806,9 @@ export function WaitlistAndAppSection({
                         <button
                           type="button"
                           onClick={() => {
+                            celebrationCleanupRef.current?.();
+                            celebrationCleanupRef.current = null;
+                            setCelebrationRunId(0);
                             setConfirmedPass(null);
                             setFullName('');
                             setEmail('');

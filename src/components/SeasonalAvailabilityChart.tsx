@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -8,10 +8,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { ArrowRight, BarChart3 } from 'lucide-react';
+import { ArrowRight, BarChart3, ChevronDown, MapPin } from 'lucide-react';
 import { SoftReveal } from './MotionPrimitives';
 import {
   CROSS_STATE_COMPARISONS,
+  FEATURED_STATE_IDS,
+  GEOPOLITICAL_ZONES,
+  getStatesByZone,
   STATE_CORRIDORS,
   summarizeSeasonalSeries,
   type CrossStateCropId,
@@ -66,7 +69,6 @@ function SeasonalTooltip({ active, label, payload }: CustomTooltipProps) {
   );
 }
 
-const STATE_IDS: NigerianCorridorId[] = ['kaduna', 'benue', 'kebbi', 'oyo', 'plateau'];
 const CROP_IDS: CrossStateCropId[] = ['tomatoes', 'maize', 'rice', 'yams'];
 
 export function SeasonalAvailabilityChart({
@@ -79,6 +81,22 @@ export function SeasonalAvailabilityChart({
 
   const activeState = STATE_CORRIDORS[selectedStateId];
   const activeComparison = CROSS_STATE_COMPARISONS[selectedCropId];
+
+  const visibleStateTabs = useMemo<NigerianCorridorId[]>(() => {
+    if (FEATURED_STATE_IDS.includes(selectedStateId)) {
+      return [...FEATURED_STATE_IDS];
+    }
+    return [...FEATURED_STATE_IDS, selectedStateId];
+  }, [selectedStateId]);
+
+  const statesByZone = useMemo(
+    () =>
+      GEOPOLITICAL_ZONES.map((zone) => ({
+        zone,
+        states: getStatesByZone(zone),
+      })),
+    []
+  );
 
   const chartData =
     viewMode === 'state' ? activeState.monthly : activeComparison.monthly;
@@ -93,7 +111,7 @@ export function SeasonalAvailabilityChart({
   return (
     <section
       id="seasonal-supply"
-      className="scroll-mt-20 border-t border-white/5 bg-[#081C10] py-18 sm:py-24"
+      className="relative isolate scroll-mt-20 border-t border-white/5 bg-[#081C10] py-18 sm:py-24"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <SoftReveal className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -165,14 +183,17 @@ export function SeasonalAvailabilityChart({
                 className="relative z-10"
               >
                 <div className="flex flex-col gap-5 border-b border-white/10 pb-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {[72, 68, 66, 56, 74].map((w, idx) => (
-                      <div
-                        key={idx}
-                        className="skeleton-shimmer h-[38px] rounded-xl border border-white/5"
-                        style={{ width: `${w}px` }}
-                      />
-                    ))}
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="skeleton-shimmer h-[40px] w-44 rounded-xl border border-white/5" />
+                    <div className="flex flex-wrap items-center gap-2">
+                      {[72, 68, 66, 56, 74, 68].map((w, idx) => (
+                        <div
+                          key={idx}
+                          className="skeleton-shimmer h-[38px] rounded-xl border border-white/5"
+                          style={{ width: `${w}px` }}
+                        />
+                      ))}
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-4">
                     {[88, 76, 82].map((w, idx) => (
@@ -238,20 +259,70 @@ export function SeasonalAvailabilityChart({
               </div>
             ) : (
               <div className="relative z-10">
-                {/* Filter Controls + Legend Header */}
+                {/* Filter Controls (Dropdown + State/Crop Tabs) & Legend Header */}
                 <div className="flex flex-col gap-5 border-b border-white/10 pb-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {viewMode === 'state'
-                      ? STATE_IDS.map((id) => {
+                  {viewMode === 'state' ? (
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                      {/* All-States Dropdown Selector */}
+                      <div className="relative shrink-0">
+                        <label htmlFor="seasonal-state-select" className="sr-only">
+                          Filter harvest data by Nigerian state
+                        </label>
+                        <MapPin
+                          aria-hidden="true"
+                          className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-[#84E12B]"
+                        />
+                        <select
+                          id="seasonal-state-select"
+                          data-testid="seasonal-state-select"
+                          value={selectedStateId}
+                          onChange={(e) =>
+                            setSelectedStateId(e.target.value as NigerianCorridorId)
+                          }
+                          className="min-h-[40px] w-full appearance-none rounded-xl border border-[#2B633B] bg-[#05130A] py-1.5 pr-9 pl-8 text-xs font-semibold text-white transition-colors hover:border-[#84E12B]/60 focus:border-[#84E12B] focus:outline-none focus:ring-2 focus:ring-[#84E12B]/30 cursor-pointer sm:w-auto"
+                        >
+                          {statesByZone.map((group) => (
+                            <optgroup
+                              key={group.zone}
+                              label={group.zone}
+                              className="bg-[#05130A] text-[#9DBBA5]"
+                            >
+                              {group.states.map((st) => (
+                                <option
+                                  key={st.id}
+                                  value={st.id}
+                                  className="bg-[#05130A] text-white"
+                                >
+                                  {st.stateName} ({group.zone})
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
+                        <ChevronDown
+                          aria-hidden="true"
+                          className="pointer-events-none absolute top-1/2 right-3 h-3.5 w-3.5 -translate-y-1/2 text-[#9DBBA5]"
+                        />
+                      </div>
+
+                      {/* Quick-Switch State Tabs */}
+                      <div
+                        role="tablist"
+                        aria-label="Nigerian state harvest tabs"
+                        className="flex flex-wrap items-center gap-1.5"
+                      >
+                        {visibleStateTabs.map((id) => {
                           const profile = STATE_CORRIDORS[id];
                           const active = id === selectedStateId;
                           return (
                             <button
                               key={id}
                               type="button"
-                              aria-pressed={active}
+                              role="tab"
+                              aria-selected={active}
+                              data-testid={`seasonal-state-tab-${id}`}
                               onClick={() => setSelectedStateId(id)}
-                              className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                              className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                                 active
                                   ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
                                   : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
@@ -260,30 +331,40 @@ export function SeasonalAvailabilityChart({
                               {profile.stateName}
                             </button>
                           );
-                        })
-                      : CROP_IDS.map((id) => {
-                          const comp = CROSS_STATE_COMPARISONS[id];
-                          const active = id === selectedCropId;
-                          return (
-                            <button
-                              key={id}
-                              type="button"
-                              aria-pressed={active}
-                              onClick={() => setSelectedCropId(id)}
-                              className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                                active
-                                  ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
-                                  : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
-                              }`}
-                            >
-                              {comp.label}
-                            </button>
-                          );
                         })}
-                  </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      role="tablist"
+                      aria-label="Cross-state crop comparison tabs"
+                      className="flex flex-wrap items-center gap-2"
+                    >
+                      {CROP_IDS.map((id) => {
+                        const comp = CROSS_STATE_COMPARISONS[id];
+                        const active = id === selectedCropId;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            role="tab"
+                            aria-selected={active}
+                            onClick={() => setSelectedCropId(id)}
+                            className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                              active
+                                ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
+                                : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
+                            }`}
+                          >
+                            {comp.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {/* Custom single-line legend matching series colors */}
-                  <div className="flex flex-wrap items-center gap-4 text-xs">
+                  <div className="flex flex-wrap items-center gap-4 text-xs shrink-0">
                     {activeSeries.map((series) => (
                       <span key={series.key} className="inline-flex items-center gap-2 text-[#E5F0E7]">
                         <span
@@ -299,9 +380,9 @@ export function SeasonalAvailabilityChart({
 
                 {/* Subtitle for selected view */}
                 <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-white">
+                  <p data-testid="seasonal-chart-subtitle" className="text-sm font-medium text-white">
                     {viewMode === 'state'
-                      ? `${activeState.stateName} State — ${activeState.corridorTagline}`
+                      ? `${activeState.stateName} State (${activeState.geoZone}) — ${activeState.corridorTagline}`
                       : `${activeComparison.label} — Cross-State Harvest Continuity`}
                   </p>
                   <span className="text-xs text-[#9DBBA5]">

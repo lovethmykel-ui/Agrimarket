@@ -2,13 +2,25 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CROSS_STATE_COMPARISONS,
+  GEOPOLITICAL_ZONES,
+  getAllStateCorridors,
+  getStatesByZone,
   MONTHS,
   STATE_CORRIDORS,
   summarizeSeasonalSeries,
 } from './seasonalData';
+import { NIGERIAN_STATES } from './waitlist';
 
 test('all state corridors provide complete 12-month series within 0-100 bounds', () => {
-  for (const corridor of Object.values(STATE_CORRIDORS)) {
+  const validStates = new Set<string>(NIGERIAN_STATES);
+  const corridors = getAllStateCorridors();
+  assert.equal(corridors.length, 12, 'expected 12 Nigerian state seasonal corridors');
+
+  for (const corridor of corridors) {
+    assert.ok(
+      validStates.has(corridor.waitlistStateValue),
+      `${corridor.waitlistStateValue} must match NIGERIAN_STATES`
+    );
     assert.equal(corridor.monthly.length, 12, `${corridor.stateName} must have 12 months`);
     corridor.monthly.forEach((point, idx) => {
       assert.equal(point.month, MONTHS[idx]);
@@ -17,6 +29,17 @@ test('all state corridors provide complete 12-month series within 0-100 bounds',
         assert.ok(val >= 0 && val <= 100, `${corridor.stateName} ${crop.key} out of range`);
       }
     });
+  }
+});
+
+test('getStatesByZone filters accurately across all geopolitical zones', () => {
+  assert.equal(getStatesByZone('All').length, Object.keys(STATE_CORRIDORS).length);
+  for (const zone of GEOPOLITICAL_ZONES) {
+    const matches = getStatesByZone(zone);
+    assert.ok(matches.length >= 1, `zone ${zone} should have at least one state`);
+    for (const st of matches) {
+      assert.equal(st.geoZone, zone);
+    }
   }
 });
 
