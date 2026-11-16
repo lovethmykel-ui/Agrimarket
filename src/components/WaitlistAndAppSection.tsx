@@ -6,8 +6,12 @@ import {
   Copy,
   Loader2,
   Search,
+  ShoppingBasket,
   Smartphone,
   Sprout,
+  TicketCheck,
+  Tractor,
+  Truck,
 } from 'lucide-react';
 import { PRODUCE_CATALOG } from '../data/content';
 import { SoftReveal } from './MotionPrimitives';
@@ -34,6 +38,7 @@ interface ConfirmedPass {
 
 interface WaitlistAndAppSectionProps {
   stats: WaitlistStats;
+  isStatsLoading?: boolean;
   selectedRole: WaitlistRole;
   onRoleChange: (role: WaitlistRole) => void;
   selectedCategories: ProduceCategoryId[];
@@ -47,6 +52,7 @@ const SOFT_TRANSITION = { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const };
 
 export function WaitlistAndAppSection({
   stats,
+  isStatsLoading = false,
   selectedRole,
   onRoleChange,
   selectedCategories,
@@ -194,6 +200,12 @@ export function WaitlistAndAppSection({
   };
 
   const roleMeta = WAITLIST_ROLE_META[selectedRole];
+  const RoleWatermarkIcon =
+    selectedRole === 'farmer'
+      ? Tractor
+      : selectedRole === 'partner'
+        ? Truck
+        : ShoppingBasket;
 
   return (
     <section
@@ -342,95 +354,133 @@ export function WaitlistAndAppSection({
 
             {/* Unboxed, hairline-separated Live Cohort Ledger */}
             <div className="mt-7 border-t border-white/10 pt-5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-white">Live Cohort Breakdown</span>
-                <span className="font-mono-nums font-bold text-[#84E12B] tabular-nums">
-                  {stats.totalCount} total
-                </span>
-              </div>
+              {isStatsLoading ? (
+                <div
+                  data-testid="waitlist-cohort-skeleton"
+                  role="status"
+                  aria-busy="true"
+                  aria-label="Loading live waitlist cohort breakdown"
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-white">Live Cohort Breakdown</span>
+                    <div className="skeleton-shimmer h-4 w-16 rounded" />
+                  </div>
 
-              <div className="mt-3.5 grid grid-cols-3 divide-x divide-white/10">
-                <div className="pr-3">
-                  <div className="font-mono-nums text-xl font-bold text-white tabular-nums">
-                    {stats.byRole.buyer}
+                  <div className="mt-3.5 grid grid-cols-3 divide-x divide-white/10">
+                    <div className="space-y-1.5 pr-3">
+                      <div className="skeleton-shimmer h-6 w-12 rounded-md" />
+                      <div className="skeleton-shimmer h-3.5 w-14 rounded" />
+                    </div>
+                    <div className="space-y-1.5 px-4">
+                      <div className="skeleton-shimmer h-6 w-12 rounded-md" />
+                      <div className="skeleton-shimmer h-3.5 w-14 rounded" />
+                    </div>
+                    <div className="space-y-1.5 pl-4">
+                      <div className="skeleton-shimmer h-6 w-12 rounded-md" />
+                      <div className="skeleton-shimmer h-3.5 w-14 rounded" />
+                    </div>
                   </div>
-                  <div className="text-xs text-[#9DBBA5]">Buyers</div>
-                </div>
-                <div className="px-4">
-                  <div className="font-mono-nums text-xl font-bold text-white tabular-nums">
-                    {stats.byRole.farmer}
-                  </div>
-                  <div className="text-xs text-[#9DBBA5]">Farmers</div>
-                </div>
-                <div className="pl-4">
-                  <div className="font-mono-nums text-xl font-bold text-white tabular-nums">
-                    {stats.byRole.partner}
-                  </div>
-                  <div className="text-xs text-[#9DBBA5]">Partners</div>
-                </div>
-              </div>
 
-              {stats.topStates.length > 0 && (
-                <p className="mt-4 text-xs text-[#A8C2AF]">
-                  <span className="font-semibold text-white">Active states: </span>
-                  {stats.topStates.slice(0, 4).map((item, idx) => (
-                    <span key={item.state}>
-                      {item.state}
-                      {idx < Math.min(stats.topStates.length, 4) - 1 ? ' · ' : ''}
+                  <div className="skeleton-shimmer mt-4 h-3.5 w-52 rounded" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-white">Live Cohort Breakdown</span>
+                    <span className="font-mono-nums font-bold text-[#84E12B] tabular-nums">
+                      {stats.totalCount} total
                     </span>
-                  ))}
-                </p>
+                  </div>
+
+                  <div className="mt-3.5 grid grid-cols-3 divide-x divide-white/10">
+                    <div className="pr-3">
+                      <div className="font-mono-nums text-xl font-bold text-white tabular-nums">
+                        {stats.byRole.buyer}
+                      </div>
+                      <div className="text-xs text-[#9DBBA5]">Buyers</div>
+                    </div>
+                    <div className="px-4">
+                      <div className="font-mono-nums text-xl font-bold text-white tabular-nums">
+                        {stats.byRole.farmer}
+                      </div>
+                      <div className="text-xs text-[#9DBBA5]">Farmers</div>
+                    </div>
+                    <div className="pl-4">
+                      <div className="font-mono-nums text-xl font-bold text-white tabular-nums">
+                        {stats.byRole.partner}
+                      </div>
+                      <div className="text-xs text-[#9DBBA5]">Partners</div>
+                    </div>
+                  </div>
+
+                  {stats.topStates.length > 0 && (
+                    <p className="mt-4 text-xs text-[#A8C2AF]">
+                      <span className="font-semibold text-white">Active states: </span>
+                      {stats.topStates.slice(0, 4).map((item, idx) => (
+                        <span key={item.state}>
+                          {item.state}
+                          {idx < Math.min(stats.topStates.length, 4) - 1 ? ' · ' : ''}
+                        </span>
+                      ))}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </SoftReveal>
 
           {/* Right column: Interactive Waitlist Form Card */}
           <SoftReveal delay={0.08} className="lg:col-span-7">
-            <div className="editorial-surface rounded-3xl border editorial-hairline p-6 sm:p-8 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.85)]">
-              {/* Top Mode Switcher: Join Waitlist vs Check My Spot */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
-                <div>
-                  <h3 className="font-display text-xl font-bold text-white sm:text-2xl">
-                    Early-Access Waiting List
-                  </h3>
-                  <p className="mt-1 text-xs text-[#A8C2AF]">
-                    Takes 30 seconds · Invitations roll out by state corridor
-                  </p>
-                </div>
+            <div className="editorial-surface relative overflow-hidden rounded-3xl border editorial-hairline p-6 sm:p-8 shadow-[0_24px_70px_-24px_rgba(0,0,0,0.85)]">
+              <RoleWatermarkIcon
+                aria-hidden="true"
+                className="pointer-events-none select-none absolute -right-6 -bottom-6 h-40 w-40 text-[#84E12B]/[0.045]"
+              />
+              <div className="relative z-10">
+                {/* Top Mode Switcher: Join Waitlist vs Check My Spot */}
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
+                  <div>
+                    <h3 className="font-display text-xl font-bold text-white sm:text-2xl">
+                      Early-Access Waiting List
+                    </h3>
+                    <p className="mt-1 text-xs text-[#A8C2AF]">
+                      Takes 30 seconds · Invitations roll out by state corridor
+                    </p>
+                  </div>
 
-                <div
-                  role="tablist"
-                  aria-label="Waitlist mode"
-                  className="inline-flex rounded-xl border border-white/10 bg-[#05130A] p-1"
-                >
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={activeTab === 'join'}
-                    onClick={() => setActiveTab('join')}
-                    className={`min-h-[38px] rounded-lg px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                      activeTab === 'join'
-                        ? 'bg-[#84E12B] text-[#05130A]'
-                        : 'text-[#CFE0D3] hover:text-white'
-                    }`}
+                  <div
+                    role="tablist"
+                    aria-label="Waitlist mode"
+                    className="inline-flex rounded-xl border border-white/10 bg-[#05130A] p-1"
                   >
-                    Join Waitlist
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={activeTab === 'check'}
-                    onClick={() => setActiveTab('check')}
-                    className={`min-h-[38px] rounded-lg px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                      activeTab === 'check'
-                        ? 'bg-[#84E12B] text-[#05130A]'
-                        : 'text-[#CFE0D3] hover:text-white'
-                    }`}
-                  >
-                    Check My Spot
-                  </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={activeTab === 'join'}
+                      onClick={() => setActiveTab('join')}
+                      className={`min-h-[38px] rounded-lg px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                        activeTab === 'join'
+                          ? 'bg-[#84E12B] text-[#05130A]'
+                          : 'text-[#CFE0D3] hover:text-white'
+                      }`}
+                    >
+                      Join Waitlist
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={activeTab === 'check'}
+                      onClick={() => setActiveTab('check')}
+                      className={`min-h-[38px] rounded-lg px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                        activeTab === 'check'
+                          ? 'bg-[#84E12B] text-[#05130A]'
+                          : 'text-[#CFE0D3] hover:text-white'
+                      }`}
+                    >
+                      Check My Spot
+                    </button>
+                  </div>
                 </div>
-              </div>
 
               <AnimatePresence mode="wait">
                 {activeTab === 'check' ? (
@@ -478,52 +528,135 @@ export function WaitlistAndAppSection({
                       </div>
                     </form>
 
-                    {lookupResult && (
+                    {lookupLoading ? (
                       <motion.div
-                        initial={{ opacity: 0, y: 8, filter: 'blur(6px)' }}
-                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        key="lookup-loading"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={SOFT_TRANSITION}
-                        data-testid="waitlist-lookup-result"
-                        className="mt-6 rounded-2xl border border-[#2B633B] bg-[#05130A] p-5"
+                        data-testid="waitlist-lookup-skeleton"
+                        role="status"
+                        aria-busy="true"
+                        aria-label="Checking waitlist spot"
+                        className="mt-6 rounded-2xl border border-[#2B633B]/70 bg-[#05130A] p-5"
                       >
-                        {lookupResult.found && lookupResult.entry ? (
-                          <div>
-                            <div className="flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-2 text-sm font-semibold text-[#84E12B]">
-                                <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
-                                <span>Confirmed on Early-Access List</span>
-                              </div>
-                              <span className="font-mono-nums text-lg font-bold text-white tabular-nums">
-                                {formatQueueNumber(lookupResult.entry.position)}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-sm text-[#CFE0D3]">
-                              {lookupResult.entry.fullName} ·{' '}
-                              {WAITLIST_ROLE_META[lookupResult.entry.role].label} ·{' '}
-                              {lookupResult.entry.state}
-                            </p>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2.5">
+                            <Loader2 className="h-4 w-4 animate-spin text-[#84E12B]" aria-hidden="true" />
+                            <div className="skeleton-shimmer h-4 w-48 rounded" />
                           </div>
-                        ) : (
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <p className="text-sm text-[#CFE0D3]">
-                              {lookupResult.newsletterSubscribed
-                                ? 'You are subscribed to launch alerts, but have not claimed a full waitlist queue spot yet.'
-                                : 'No waitlist registration found for that email address yet.'}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEmail(lookupEmail);
-                                setActiveTab('join');
-                              }}
-                              className="inline-flex min-h-[40px] shrink-0 items-center justify-center rounded-lg bg-[#84E12B] px-4 py-2 text-xs font-bold text-[#05130A] whitespace-nowrap hover:bg-[#97F043] cursor-pointer"
-                            >
-                              Reserve Spot Now
-                            </button>
-                          </div>
-                        )}
+                          <div className="skeleton-shimmer h-6 w-16 rounded-md" />
+                        </div>
+                        <div className="skeleton-shimmer mt-3 h-3.5 w-64 rounded" />
                       </motion.div>
+                    ) : (
+                      lookupResult && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, filter: 'blur(6px)' }}
+                          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                          transition={SOFT_TRANSITION}
+                          data-testid="waitlist-lookup-result"
+                          className="relative mt-6 overflow-hidden rounded-2xl border border-[#2B633B] bg-[#05130A] p-5"
+                        >
+                          {lookupResult.found && lookupResult.entry ? (
+                            <>
+                              <TicketCheck
+                                aria-hidden="true"
+                                className="pointer-events-none select-none absolute -right-3 -bottom-3 h-20 w-20 text-[#84E12B]/[0.07]"
+                              />
+                              <div className="relative z-10">
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="flex items-center gap-2 text-sm font-semibold text-[#84E12B]">
+                                    <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+                                    <span>Confirmed on Early-Access List</span>
+                                  </div>
+                                  <span className="font-mono-nums text-lg font-bold text-white tabular-nums">
+                                    {formatQueueNumber(lookupResult.entry.position)}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-sm text-[#CFE0D3]">
+                                  {lookupResult.entry.fullName} ·{' '}
+                                  {WAITLIST_ROLE_META[lookupResult.entry.role].label} ·{' '}
+                                  {lookupResult.entry.state}
+                                </p>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                              <p className="text-sm text-[#CFE0D3]">
+                                {lookupResult.newsletterSubscribed
+                                  ? 'You are subscribed to launch alerts, but have not claimed a full waitlist queue spot yet.'
+                                  : 'No waitlist registration found for that email address yet.'}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEmail(lookupEmail);
+                                  setActiveTab('join');
+                                }}
+                                className="inline-flex min-h-[40px] shrink-0 items-center justify-center rounded-lg bg-[#84E12B] px-4 py-2 text-xs font-bold text-[#05130A] whitespace-nowrap hover:bg-[#97F043] cursor-pointer"
+                              >
+                                Reserve Spot Now
+                              </button>
+                            </div>
+                          )}
+                        </motion.div>
+                      )
                     )}
+                  </motion.div>
+                ) : isSubmitting ? (
+                  <motion.div
+                    key="tab-submitting"
+                    initial={{ opacity: 0, y: 8, filter: 'blur(6px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: -6, filter: 'blur(6px)' }}
+                    transition={SOFT_TRANSITION}
+                    data-testid="waitlist-submit-skeleton"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="Reserving your waitlist spot"
+                    className="relative mt-6 overflow-hidden rounded-2xl border border-[#84E12B]/30 bg-gradient-to-br from-[#0B2715]/80 to-[#05130A] p-6"
+                  >
+                    <TicketCheck
+                      aria-hidden="true"
+                      className="pointer-events-none select-none absolute -right-4 -bottom-4 h-32 w-32 text-[#84E12B]/[0.05]"
+                    />
+                    <div className="relative z-10">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                          <div className="inline-flex items-center gap-2 text-sm font-semibold text-[#84E12B]">
+                            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                            <span>Reserving your waitlist spot...</span>
+                          </div>
+                          <div className="skeleton-shimmer mt-3 h-7 w-56 rounded-lg" />
+                        </div>
+
+                        <div className="space-y-1.5 border-l border-white/15 pl-4 text-right">
+                          <div className="skeleton-shimmer ml-auto h-3 w-20 rounded" />
+                          <div className="skeleton-shimmer h-8 w-24 rounded-lg" />
+                        </div>
+                      </div>
+
+                      <div className="mt-6 grid grid-cols-1 gap-4 border-t border-white/10 pt-5 sm:grid-cols-3">
+                        <div className="space-y-1.5">
+                          <div className="skeleton-shimmer h-3 w-12 rounded" />
+                          <div className="skeleton-shimmer h-4 w-28 rounded" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <div className="skeleton-shimmer h-3 w-12 rounded" />
+                          <div className="skeleton-shimmer h-4 w-24 rounded" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <div className="skeleton-shimmer h-3 w-16 rounded" />
+                          <div className="skeleton-shimmer h-4 w-32 rounded" />
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap items-center gap-3">
+                        <div className="skeleton-shimmer h-[42px] w-44 rounded-xl" />
+                        <div className="skeleton-shimmer h-[42px] w-48 rounded-xl" />
+                      </div>
+                    </div>
                   </motion.div>
                 ) : confirmedPass ? (
                   <motion.div
@@ -533,82 +666,88 @@ export function WaitlistAndAppSection({
                     exit={{ opacity: 0, filter: 'blur(6px)' }}
                     transition={SOFT_TRANSITION}
                     data-testid="waitlist-confirmation"
-                    className="mt-6 rounded-2xl border border-[#84E12B]/55 bg-gradient-to-br from-[#0B2715] to-[#05130A] p-6 shadow-[0_0_40px_-14px_rgba(132,225,43,0.4)]"
+                    className="relative mt-6 overflow-hidden rounded-2xl border border-[#84E12B]/55 bg-gradient-to-br from-[#0B2715] to-[#05130A] p-6 shadow-[0_0_40px_-14px_rgba(132,225,43,0.4)]"
                   >
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <div className="inline-flex items-center gap-2 text-sm font-semibold text-[#84E12B]">
-                          <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
-                          <span>
-                            {confirmedPass.alreadyRegistered
-                              ? 'You Are Already on the Waitlist'
-                              : 'Waitlist Spot Confirmed'}
-                          </span>
+                    <TicketCheck
+                      aria-hidden="true"
+                      className="pointer-events-none select-none absolute -right-4 -bottom-4 h-32 w-32 text-[#84E12B]/[0.08]"
+                    />
+                    <div className="relative z-10">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                          <div className="inline-flex items-center gap-2 text-sm font-semibold text-[#84E12B]">
+                            <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+                            <span>
+                              {confirmedPass.alreadyRegistered
+                                ? 'You Are Already on the Waitlist'
+                                : 'Waitlist Spot Confirmed'}
+                            </span>
+                          </div>
+                          <h4 className="mt-2 font-display text-2xl font-bold text-white">
+                            Welcome aboard, {confirmedPass.fullName}
+                          </h4>
                         </div>
-                        <h4 className="mt-2 font-display text-2xl font-bold text-white">
-                          Welcome aboard, {confirmedPass.fullName}
-                        </h4>
-                      </div>
 
-                      <div className="border-l border-white/15 pl-4 text-right">
-                        <div className="text-[11px] font-medium text-[#A8C2AF]">Queue Position</div>
-                        <div className="font-mono-nums text-3xl font-extrabold text-[#84E12B] tabular-nums">
-                          {formatQueueNumber(confirmedPass.position)}
+                        <div className="border-l border-white/15 pl-4 text-right">
+                          <div className="text-[11px] font-medium text-[#A8C2AF]">Queue Position</div>
+                          <div className="font-mono-nums text-3xl font-extrabold text-[#84E12B] tabular-nums">
+                            {formatQueueNumber(confirmedPass.position)}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-white/10 pt-5 text-sm sm:grid-cols-3">
-                      <div>
-                        <dt className="text-xs text-[#9DBBA5]">Track</dt>
-                        <dd className="mt-0.5 font-semibold text-white">
-                          {WAITLIST_ROLE_META[confirmedPass.role].shortLabel}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-[#9DBBA5]">State</dt>
-                        <dd className="mt-0.5 font-semibold text-white">{confirmedPass.state}</dd>
-                      </div>
-                      <div>
-                        <dt className="text-xs text-[#9DBBA5]">Categories</dt>
-                        <dd className="mt-0.5 font-semibold capitalize text-white">
-                          {confirmedPass.categories.join(', ')}
-                        </dd>
-                      </div>
-                    </dl>
+                      <dl className="mt-5 grid grid-cols-1 gap-3 border-t border-white/10 pt-5 text-sm sm:grid-cols-3">
+                        <div>
+                          <dt className="text-xs text-[#9DBBA5]">Track</dt>
+                          <dd className="mt-0.5 font-semibold text-white">
+                            {WAITLIST_ROLE_META[confirmedPass.role].shortLabel}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-[#9DBBA5]">State</dt>
+                          <dd className="mt-0.5 font-semibold text-white">{confirmedPass.state}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-xs text-[#9DBBA5]">Categories</dt>
+                          <dd className="mt-0.5 font-semibold capitalize text-white">
+                            {confirmedPass.categories.join(', ')}
+                          </dd>
+                        </div>
+                      </dl>
 
-                    <div className="mt-6 flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={handleCopyInvite}
-                        className="inline-flex min-h-[42px] items-center gap-2 rounded-xl bg-[#84E12B] px-4 py-2 text-sm font-bold text-[#05130A] whitespace-nowrap hover:bg-[#97F043] cursor-pointer"
-                      >
-                        {copiedLink ? (
-                          <>
-                            <Check className="h-4 w-4" aria-hidden="true" />
-                            <span>Invite Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="h-4 w-4" aria-hidden="true" />
-                            <span>Share Waitlist Invite</span>
-                          </>
-                        )}
-                      </button>
+                      <div className="mt-6 flex flex-wrap items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={handleCopyInvite}
+                          className="inline-flex min-h-[42px] items-center gap-2 rounded-xl bg-[#84E12B] px-4 py-2 text-sm font-bold text-[#05130A] whitespace-nowrap hover:bg-[#97F043] cursor-pointer"
+                        >
+                          {copiedLink ? (
+                            <>
+                              <Check className="h-4 w-4" aria-hidden="true" />
+                              <span>Invite Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4" aria-hidden="true" />
+                              <span>Share Waitlist Invite</span>
+                            </>
+                          )}
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setConfirmedPass(null);
-                          setFullName('');
-                          setEmail('');
-                          setPhone('');
-                          setFarmOrBusinessName('');
-                        }}
-                        className="inline-flex min-h-[42px] items-center rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#CFE0D3] whitespace-nowrap hover:border-[#84E12B]/60 hover:text-white cursor-pointer"
-                      >
-                        Register Another Person
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setConfirmedPass(null);
+                            setFullName('');
+                            setEmail('');
+                            setPhone('');
+                            setFarmOrBusinessName('');
+                          }}
+                          className="inline-flex min-h-[42px] items-center rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-[#CFE0D3] whitespace-nowrap hover:border-[#84E12B]/60 hover:text-white cursor-pointer"
+                        >
+                          Register Another Person
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ) : (
@@ -820,7 +959,8 @@ export function WaitlistAndAppSection({
                     </button>
                   </motion.form>
                 )}
-              </AnimatePresence>
+                </AnimatePresence>
+              </div>
             </div>
           </SoftReveal>
         </div>

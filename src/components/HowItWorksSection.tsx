@@ -1,6 +1,14 @@
+import { CreditCard, MailCheck, Truck, UserPlus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { HOW_IT_WORKS_STEPS } from '../data/content';
 import { SoftReveal, StaggerGrid, StaggerItem } from './MotionPrimitives';
+
+const STEP_WATERMARKS = {
+  '01': UserPlus,
+  '02': MailCheck,
+  '03': CreditCard,
+  '04': Truck,
+} as const;
 
 export function HowItWorksSection() {
   return (
@@ -39,27 +47,35 @@ export function HowItWorksSection() {
           </div>
 
           <StaggerGrid className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {HOW_IT_WORKS_STEPS.map((item, idx) => (
-              <StaggerItem key={item.step} delay={idx * 0.08}>
-                <div className="editorial-surface group flex h-full flex-col rounded-2xl border editorial-hairline p-6 transition-all duration-200 hover:-translate-y-1 hover:border-[#84E12B]/50">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono-nums relative z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#84E12B]/50 bg-[#081F11] text-xs font-bold text-[#84E12B] shadow-[0_0_20px_-4px_rgba(132,225,43,0.4)] tabular-nums">
-                      {item.step}
-                    </span>
-                    <span className="text-[11px] font-medium text-[#7EA689]">
-                      Phase {item.step}
-                    </span>
-                  </div>
+            {HOW_IT_WORKS_STEPS.map((item, idx) => {
+              const WatermarkIcon = STEP_WATERMARKS[item.step];
 
-                  <h3 className="mt-5 font-display text-lg font-bold text-white">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#BED4C3]">
-                    {item.description}
-                  </p>
-                </div>
-              </StaggerItem>
-            ))}
+              return (
+                <StaggerItem key={item.step} delay={idx * 0.08}>
+                  <div className="editorial-surface group relative flex h-full flex-col overflow-hidden rounded-2xl border editorial-hairline p-6 transition-all duration-200 hover:-translate-y-1 hover:border-[#84E12B]/50">
+                    <WatermarkIcon
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -right-3 -bottom-3 h-24 w-24 text-[#84E12B]/[0.06] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                    />
+                    <div className="relative z-10 flex items-center justify-between">
+                      <span className="font-mono-nums relative z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#84E12B]/50 bg-[#081F11] text-xs font-bold text-[#84E12B] shadow-[0_0_20px_-4px_rgba(132,225,43,0.4)] tabular-nums">
+                        {item.step}
+                      </span>
+                      <span className="text-[11px] font-medium text-[#7EA689]">
+                        Phase {item.step}
+                      </span>
+                    </div>
+
+                    <h3 className="relative z-10 mt-5 font-display text-lg font-bold text-white">
+                      {item.title}
+                    </h3>
+                    <p className="relative z-10 mt-2 text-sm leading-relaxed text-[#BED4C3]">
+                      {item.description}
+                    </p>
+                  </div>
+                </StaggerItem>
+              );
+            })}
           </StaggerGrid>
         </div>
       </div>

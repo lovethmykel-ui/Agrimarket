@@ -1,4 +1,4 @@
-import { ArrowRight, Sprout } from 'lucide-react';
+import { ArrowRight, Scale, ShieldCheck, Sprout } from 'lucide-react';
 import { AGRIMARKET_IMAGES } from '../data/assets';
 import { ABOUT_PILLARS } from '../data/content';
 import { SoftReveal, StaggerGrid, StaggerItem } from './MotionPrimitives';
@@ -61,23 +61,36 @@ export function AboutSection({ onReserveSpotClick }: AboutSectionProps) {
               </SoftReveal>
 
               <StaggerGrid className="flex flex-col justify-between gap-3.5 sm:col-span-6">
-                {ABOUT_PILLARS.map((pillar, idx) => (
-                  <StaggerItem key={pillar.id} delay={idx * 0.09}>
-                    <div className="group rounded-2xl border border-[#DCE5D7] bg-[#F5F7F2] p-5 text-[#071A0E] transition-transform duration-200 hover:-translate-y-0.5">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <h3 className="font-display text-base font-bold leading-snug text-[#071A0E]">
-                          {pillar.title}
-                        </h3>
-                        <span className="font-mono-nums text-xs font-semibold text-[#2E7D1E] tabular-nums">
-                          0{idx + 1}
-                        </span>
+                {ABOUT_PILLARS.map((pillar, idx) => {
+                  const WatermarkIcon =
+                    pillar.id === 'support-farmers'
+                      ? Sprout
+                      : pillar.id === 'better-prices'
+                        ? Scale
+                        : ShieldCheck;
+
+                  return (
+                    <StaggerItem key={pillar.id} delay={idx * 0.09}>
+                      <div className="group relative overflow-hidden rounded-2xl border border-[#DCE5D7] bg-[#F5F7F2] p-5 text-[#071A0E] transition-transform duration-200 hover:-translate-y-0.5">
+                        <WatermarkIcon
+                          aria-hidden="true"
+                          className="pointer-events-none absolute -right-3 -bottom-3 h-22 w-22 text-[#1E6B2B]/[0.08] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6"
+                        />
+                        <div className="relative z-10 flex items-baseline justify-between gap-3">
+                          <h3 className="font-display text-base font-bold leading-snug text-[#071A0E]">
+                            {pillar.title}
+                          </h3>
+                          <span className="font-mono-nums text-xs font-semibold text-[#2E7D1E] tabular-nums">
+                            0{idx + 1}
+                          </span>
+                        </div>
+                        <p className="relative z-10 mt-1.5 text-xs leading-relaxed text-[#38523E]">
+                          {pillar.description}
+                        </p>
                       </div>
-                      <p className="mt-1.5 text-xs leading-relaxed text-[#38523E]">
-                        {pillar.description}
-                      </p>
-                    </div>
-                  </StaggerItem>
-                ))}
+                    </StaggerItem>
+                  );
+                })}
               </StaggerGrid>
             </div>
           </div>

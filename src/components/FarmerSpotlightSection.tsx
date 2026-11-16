@@ -1,4 +1,4 @@
-import { ArrowRight, Quote, Sprout } from 'lucide-react';
+import { ArrowRight, Quote, Sprout, Tractor } from 'lucide-react';
 import { AGRIMARKET_IMAGES } from '../data/assets';
 import { SoftReveal } from './MotionPrimitives';
 
@@ -30,8 +30,12 @@ export function FarmerSpotlightSection({ onApplyAsFarmerClick }: FarmerSpotlight
               </div>
 
               {/* Center column: Pilot farmer onboarding story */}
-              <div className="flex flex-col justify-center p-7 sm:p-9 lg:col-span-4">
-                <p className="text-xs font-semibold tracking-[0.14em] uppercase text-[#84E12B]">
+              <div className="relative flex flex-col justify-center overflow-hidden p-7 sm:p-9 lg:col-span-4">
+                <Tractor
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-4 -bottom-4 h-28 w-28 text-[#84E12B]/[0.05]"
+                />
+                <p className="relative z-10 text-xs font-semibold tracking-[0.14em] uppercase text-[#84E12B]">
                   Farmer Pilot Program
                 </p>
                 <h2 className="mt-2 font-display text-balance text-2xl font-bold tracking-tight text-white sm:text-3xl">

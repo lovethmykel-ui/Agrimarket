@@ -1,8 +1,16 @@
+import {
+  NIGERIA_SVG_HEIGHT,
+  NIGERIA_SVG_STATES,
+  NIGERIA_SVG_WIDTH,
+} from './nigeriaSvgPaths';
+import type { StateRoleCounts } from './waitlist';
+
 export type DensityFilterMode = 'all' | 'farmers' | 'buyers';
 
 export type LabelPlacement = 'top' | 'bottom' | 'left' | 'right';
 
 export interface NigeriaStateBaseNode {
+  svgId: string;
   stateName: string;
   shortLabel: string;
   zone:
@@ -13,8 +21,6 @@ export interface NigeriaStateBaseNode {
     | 'South East'
     | 'South South';
   corridorRole: 'Supply Basin' | 'Demand Hub' | 'Trade Corridor';
-  lng: number;
-  lat: number;
   x: number;
   y: number;
   labelPlacement: LabelPlacement;
@@ -39,77 +45,21 @@ export interface TradeCorridorLink {
   to: string;
 }
 
-const SVG_WIDTH = 640;
-const SVG_HEIGHT = 520;
-const MIN_LNG = 2.65;
-const MAX_LNG = 14.7;
-const MIN_LAT = 4.25;
-const MAX_LAT = 13.9;
-
-export function projectNigeriaCoord(lng: number, lat: number): { x: number; y: number } {
-  const x = Math.round((72 + ((lng - MIN_LNG) / (MAX_LNG - MIN_LNG)) * 496) * 10) / 10;
-  const y = Math.round((468 - ((lat - MIN_LAT) / (MAX_LAT - MIN_LAT)) * 416) * 10) / 10;
-  return { x, y };
-}
-
 export const MAP_BOUNDS = {
-  width: SVG_WIDTH,
-  height: SVG_HEIGHT,
+  width: NIGERIA_SVG_WIDTH,
+  height: NIGERIA_SVG_HEIGHT,
 };
 
-const NIGERIA_BORDER_COORDS: ReadonlyArray<[number, number]> = [
-  [3.6, 11.7],
-  [4.0, 12.8],
-  [5.4, 13.85],
-  [7.6, 13.3],
-  [9.6, 13.0],
-  [11.8, 13.45],
-  [13.45, 13.75],
-  [14.62, 12.45],
-  [13.7, 10.6],
-  [13.3, 9.2],
-  [12.2, 8.0],
-  [11.45, 6.7],
-  [9.45, 6.6],
-  [8.9, 5.1],
-  [8.3, 4.6],
-  [7.2, 4.5],
-  [6.1, 4.3],
-  [5.2, 5.4],
-  [4.5, 6.3],
-  [2.8, 6.4],
-  [2.7, 8.2],
-  [3.3, 9.7],
-  [3.7, 10.7],
-];
+const SVG_STATE_LOOKUP = new Map(
+  NIGERIA_SVG_STATES.map((state) => [state.stateName, state])
+);
 
-export const NIGERIA_BORDER_PATH =
-  NIGERIA_BORDER_COORDS.map(([lng, lat], idx) => {
-    const { x, y } = projectNigeriaCoord(lng, lat);
-    return `${idx === 0 ? 'M' : 'L'}${x},${y}`;
-  }).join(' ') + ' Z';
-
-export const NIGERIA_ZONE_LABELS: ReadonlyArray<{
-  label: string;
-  x: number;
-  y: number;
-}> = [
-  { label: 'NORTH WEST', ...projectNigeriaCoord(6.4, 12.6) },
-  { label: 'NORTH EAST', ...projectNigeriaCoord(11.8, 11.4) },
-  { label: 'NORTH CENTRAL', ...projectNigeriaCoord(6.2, 9.5) },
-  { label: 'SOUTH WEST', ...projectNigeriaCoord(4.5, 7.6) },
-  { label: 'SOUTH EAST', ...projectNigeriaCoord(7.9, 6.0) },
-  { label: 'SOUTH SOUTH', ...projectNigeriaCoord(5.8, 5.1) },
-];
-
-const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
+const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'svgId' | 'x' | 'y'>[] = [
   {
     stateName: 'Kaduna',
     shortLabel: 'Kaduna',
     zone: 'North West',
     corridorRole: 'Supply Basin',
-    lng: 7.44,
-    lat: 10.52,
     labelPlacement: 'left',
     baseFarmers: 184,
     baseBuyers: 42,
@@ -122,8 +72,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Kano',
     zone: 'North West',
     corridorRole: 'Supply Basin',
-    lng: 8.52,
-    lat: 12.0,
     labelPlacement: 'top',
     baseFarmers: 162,
     baseBuyers: 68,
@@ -136,8 +84,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Lagos',
     zone: 'South West',
     corridorRole: 'Demand Hub',
-    lng: 3.38,
-    lat: 6.48,
     labelPlacement: 'bottom',
     baseFarmers: 18,
     baseBuyers: 214,
@@ -150,8 +96,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Abuja',
     zone: 'North Central',
     corridorRole: 'Demand Hub',
-    lng: 7.49,
-    lat: 9.06,
     labelPlacement: 'left',
     baseFarmers: 26,
     baseBuyers: 146,
@@ -164,8 +108,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Benue',
     zone: 'North Central',
     corridorRole: 'Supply Basin',
-    lng: 8.9,
-    lat: 7.45,
     labelPlacement: 'right',
     baseFarmers: 152,
     baseBuyers: 29,
@@ -178,8 +120,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Oyo',
     zone: 'South West',
     corridorRole: 'Trade Corridor',
-    lng: 3.93,
-    lat: 7.85,
     labelPlacement: 'right',
     baseFarmers: 92,
     baseBuyers: 84,
@@ -192,8 +132,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Plateau',
     zone: 'North Central',
     corridorRole: 'Supply Basin',
-    lng: 8.89,
-    lat: 9.9,
     labelPlacement: 'right',
     baseFarmers: 118,
     baseBuyers: 31,
@@ -206,8 +144,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Kebbi',
     zone: 'North West',
     corridorRole: 'Supply Basin',
-    lng: 4.2,
-    lat: 12.45,
     labelPlacement: 'left',
     baseFarmers: 104,
     baseBuyers: 21,
@@ -220,9 +156,7 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Ogun',
     zone: 'South West',
     corridorRole: 'Trade Corridor',
-    lng: 3.35,
-    lat: 7.16,
-    labelPlacement: 'left',
+    labelPlacement: 'right',
     baseFarmers: 76,
     baseBuyers: 64,
     staples: ['Broiler Poultry', 'Catfish', 'Leafy Greens'],
@@ -234,8 +168,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Rivers',
     zone: 'South South',
     corridorRole: 'Demand Hub',
-    lng: 7.01,
-    lat: 4.82,
     labelPlacement: 'bottom',
     baseFarmers: 24,
     baseBuyers: 108,
@@ -248,9 +180,7 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Enugu',
     zone: 'South East',
     corridorRole: 'Trade Corridor',
-    lng: 7.5,
-    lat: 6.45,
-    labelPlacement: 'right',
+    labelPlacement: 'top',
     baseFarmers: 48,
     baseBuyers: 82,
     staples: ['Palm Oil', 'Yams', 'Vegetables'],
@@ -262,9 +192,7 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Edo',
     zone: 'South South',
     corridorRole: 'Trade Corridor',
-    lng: 5.62,
-    lat: 6.34,
-    labelPlacement: 'left',
+    labelPlacement: 'top',
     baseFarmers: 58,
     baseBuyers: 52,
     staples: ['Plantain', 'Pineapple', 'Cassava'],
@@ -276,8 +204,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Nasarawa',
     zone: 'North Central',
     corridorRole: 'Supply Basin',
-    lng: 8.52,
-    lat: 8.5,
     labelPlacement: 'right',
     baseFarmers: 84,
     baseBuyers: 26,
@@ -290,9 +216,7 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Sokoto',
     zone: 'North West',
     corridorRole: 'Supply Basin',
-    lng: 5.24,
-    lat: 13.06,
-    labelPlacement: 'top',
+    labelPlacement: 'right',
     baseFarmers: 74,
     baseBuyers: 18,
     staples: ['Red Onions', 'Garlic', 'Cattle'],
@@ -304,8 +228,6 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Cross River',
     zone: 'South South',
     corridorRole: 'Supply Basin',
-    lng: 8.55,
-    lat: 5.65,
     labelPlacement: 'right',
     baseFarmers: 64,
     baseBuyers: 34,
@@ -318,9 +240,7 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
     shortLabel: 'Borno',
     zone: 'North East',
     corridorRole: 'Supply Basin',
-    lng: 13.15,
-    lat: 11.83,
-    labelPlacement: 'bottom',
+    labelPlacement: 'left',
     baseFarmers: 62,
     baseBuyers: 19,
     staples: ['Cowpea', 'Millet', 'Livestock'],
@@ -330,11 +250,15 @@ const RAW_STATE_NODES: Omit<NigeriaStateBaseNode, 'x' | 'y'>[] = [
 ];
 
 export const NIGERIA_STATE_NODES: NigeriaStateBaseNode[] = RAW_STATE_NODES.map((node) => {
-  const { x, y } = projectNigeriaCoord(node.lng, node.lat);
+  const svgMeta = SVG_STATE_LOOKUP.get(node.stateName);
+  if (!svgMeta) {
+    throw new Error(`Missing SVG state path metadata for ${node.stateName}`);
+  }
   return {
     ...node,
-    x,
-    y,
+    svgId: svgMeta.id,
+    x: svgMeta.cx,
+    y: svgMeta.cy,
   };
 });
 
@@ -354,10 +278,7 @@ export const TRADE_CORRIDOR_LINKS: ReadonlyArray<TradeCorridorLink> = [
 ];
 
 export function buildDensityNodes(
-  liveByState: Record<
-    string,
-    { buyers: number; farmers: number; partners: number; total: number }
-  > = {},
+  liveByState: Record<string, StateRoleCounts> = {},
   filterMode: DensityFilterMode = 'all'
 ): {
   nodes: NigeriaStateDensityNode[];
@@ -398,7 +319,7 @@ export function buildDensityNodes(
 
   const nodes: NigeriaStateDensityNode[] = preliminary.map(({ metric, ...rest }) => {
     const ratio = Math.sqrt(Math.max(0, metric) / maxMetric);
-    const radius = Math.round((6.5 + ratio * 12.5) * 10) / 10;
+    const radius = Math.round((7.5 + ratio * 13.5) * 10) / 10;
     return {
       ...rest,
       radius,

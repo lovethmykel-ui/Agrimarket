@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BarChart3 } from 'lucide-react';
 import { SoftReveal } from './MotionPrimitives';
 import {
   CROSS_STATE_COMPARISONS,
@@ -20,8 +20,11 @@ import {
 } from '../utils/seasonalData';
 
 interface SeasonalAvailabilityChartProps {
+  isLoading?: boolean;
   onSelectStateAndScroll: (stateName: string) => void;
 }
+
+const SKELETON_BAR_HEIGHTS = [42, 54, 48, 63, 76, 86, 92, 81, 68, 56, 70, 51];
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -67,6 +70,7 @@ const STATE_IDS: NigerianCorridorId[] = ['kaduna', 'benue', 'kebbi', 'oyo', 'pla
 const CROP_IDS: CrossStateCropId[] = ['tomatoes', 'maize', 'rice', 'yams'];
 
 export function SeasonalAvailabilityChart({
+  isLoading = false,
   onSelectStateAndScroll,
 }: SeasonalAvailabilityChartProps) {
   const [viewMode, setViewMode] = useState<'state' | 'corridor'>('state');
@@ -145,146 +149,233 @@ export function SeasonalAvailabilityChart({
         <SoftReveal delay={0.08}>
           <div
             data-testid="seasonal-chart-card"
-            className="editorial-surface mt-8 rounded-3xl border editorial-hairline p-6 sm:p-8"
+            className="editorial-surface relative mt-8 overflow-hidden rounded-3xl border editorial-hairline p-6 sm:p-8"
           >
-            {/* Filter Controls + Legend Header */}
-            <div className="flex flex-col gap-5 border-b border-white/10 pb-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-wrap items-center gap-2">
-                {viewMode === 'state'
-                  ? STATE_IDS.map((id) => {
-                      const profile = STATE_CORRIDORS[id];
-                      const active = id === selectedStateId;
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => setSelectedStateId(id)}
-                          className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                            active
-                              ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
-                              : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
-                          }`}
-                        >
-                          {profile.stateName}
-                        </button>
-                      );
-                    })
-                  : CROP_IDS.map((id) => {
-                      const comp = CROSS_STATE_COMPARISONS[id];
-                      const active = id === selectedCropId;
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => setSelectedCropId(id)}
-                          className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                            active
-                              ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
-                              : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
-                          }`}
-                        >
-                          {comp.label}
-                        </button>
-                      );
-                    })}
-              </div>
+            <BarChart3
+              aria-hidden="true"
+              className="pointer-events-none select-none absolute -right-6 -bottom-6 h-40 w-40 text-[#84E12B]/[0.045]"
+            />
 
-              {/* Custom single-line legend matching series colors */}
-              <div className="flex flex-wrap items-center gap-4 text-xs">
-                {activeSeries.map((series) => (
-                  <span key={series.key} className="inline-flex items-center gap-2 text-[#E5F0E7]">
-                    <span
-                      aria-hidden="true"
-                      className="h-2.5 w-2.5 rounded-full"
-                      style={{ backgroundColor: series.color }}
-                    />
-                    <span className="font-medium whitespace-nowrap">{series.label}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Subtitle for selected view */}
-            <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
-              <p className="text-sm font-medium text-white">
-                {viewMode === 'state'
-                  ? `${activeState.stateName} State — ${activeState.corridorTagline}`
-                  : `${activeComparison.label} — Cross-State Harvest Continuity`}
-              </p>
-              <span className="text-xs text-[#9DBBA5]">
-                Monthly Regional Supply Availability (0–100 Index)
-              </span>
-            </div>
-
-            {/* Recharts AreaChart with explicit height container */}
-            <div className="mt-5 h-[320px] w-full" data-testid="recharts-seasonal-container">
-              <ResponsiveContainer width="100%" height={320}>
-                <AreaChart
-                  data={chartData}
-                  margin={{ top: 12, right: 12, left: -16, bottom: 4 }}
-                >
-                  <defs>
-                    {activeSeries.map((series) => (
-                      <linearGradient
-                        key={series.key}
-                        id={`grad-${viewMode}-${series.key}`}
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="5%" stopColor={series.color} stopOpacity={0.34} />
-                        <stop offset="95%" stopColor={series.color} stopOpacity={0.02} />
-                      </linearGradient>
+            {isLoading ? (
+              <div
+                data-testid="seasonal-chart-skeleton"
+                role="status"
+                aria-busy="true"
+                aria-label="Loading seasonal crop availability chart"
+                className="relative z-10"
+              >
+                <div className="flex flex-col gap-5 border-b border-white/10 pb-6 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[72, 68, 66, 56, 74].map((w, idx) => (
+                      <div
+                        key={idx}
+                        className="skeleton-shimmer h-[38px] rounded-xl border border-white/5"
+                        style={{ width: `${w}px` }}
+                      />
                     ))}
-                  </defs>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    {[88, 76, 82].map((w, idx) => (
+                      <div
+                        key={idx}
+                        className="skeleton-shimmer h-4 rounded-full"
+                        style={{ width: `${w}px` }}
+                      />
+                    ))}
+                  </div>
+                </div>
 
-                  <CartesianGrid
-                    stroke="rgba(255,255,255,0.08)"
-                    strokeDasharray="4 4"
-                    vertical={false}
-                  />
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-2">
+                  <div className="skeleton-shimmer h-5 w-64 rounded-lg" />
+                  <div className="skeleton-shimmer h-4 w-48 rounded-lg" />
+                </div>
 
-                  <XAxis
-                    dataKey="month"
-                    stroke="#89A991"
-                    tick={{ fill: '#A8C2AF', fontSize: 12 }}
-                    axisLine={{ stroke: 'rgba(255,255,255,0.12)' }}
-                    tickLine={false}
-                  />
+                <div className="relative mt-5 flex h-[320px] w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/10 bg-[#05130A]/55 px-4 pb-6 pt-8 sm:px-6">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-4 top-8 bottom-12 flex flex-col justify-between sm:inset-x-6"
+                  >
+                    {[0, 1, 2, 3].map((row) => (
+                      <div key={row} className="w-full border-t border-dashed border-white/[0.06]" />
+                    ))}
+                  </div>
+                  <div className="relative z-10 grid h-52 grid-cols-12 items-end gap-2 sm:gap-3.5">
+                    {SKELETON_BAR_HEIGHTS.map((pct, idx) => (
+                      <div key={idx} className="flex h-full flex-col items-center justify-end gap-2">
+                        <div
+                          className="skeleton-shimmer w-full rounded-t-lg border border-white/5"
+                          style={{ height: `${pct}%` }}
+                        />
+                        <div className="skeleton-shimmer h-2.5 w-6 rounded" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                  <YAxis
-                    domain={[0, 100]}
-                    ticks={[0, 25, 50, 75, 100]}
-                    stroke="#89A991"
-                    tick={{ fill: '#A8C2AF', fontSize: 12 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
+                <div className="mt-6 grid grid-cols-1 items-center gap-6 border-t border-white/10 pt-6 lg:grid-cols-12">
+                  <div className="grid grid-cols-3 divide-x divide-white/10 lg:col-span-5">
+                    <div className="space-y-2 pr-3">
+                      <div className="skeleton-shimmer h-3 w-20 rounded" />
+                      <div className="skeleton-shimmer h-6 w-24 rounded-lg" />
+                    </div>
+                    <div className="space-y-2 px-4">
+                      <div className="skeleton-shimmer h-3 w-22 rounded" />
+                      <div className="skeleton-shimmer h-6 w-20 rounded-lg" />
+                    </div>
+                    <div className="space-y-2 pl-4">
+                      <div className="skeleton-shimmer h-3 w-24 rounded" />
+                      <div className="skeleton-shimmer h-6 w-20 rounded-lg" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 lg:col-span-4">
+                    <div className="skeleton-shimmer h-3.5 w-full rounded" />
+                    <div className="skeleton-shimmer h-3.5 w-4/5 rounded" />
+                  </div>
+                  <div className="flex lg:col-span-3 lg:justify-end">
+                    <div className="skeleton-shimmer h-[44px] w-44 rounded-xl border border-white/5" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="relative z-10">
+                {/* Filter Controls + Legend Header */}
+                <div className="flex flex-col gap-5 border-b border-white/10 pb-6 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {viewMode === 'state'
+                      ? STATE_IDS.map((id) => {
+                          const profile = STATE_CORRIDORS[id];
+                          const active = id === selectedStateId;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setSelectedStateId(id)}
+                              className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                                active
+                                  ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
+                                  : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
+                              }`}
+                            >
+                              {profile.stateName}
+                            </button>
+                          );
+                        })
+                      : CROP_IDS.map((id) => {
+                          const comp = CROSS_STATE_COMPARISONS[id];
+                          const active = id === selectedCropId;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              aria-pressed={active}
+                              onClick={() => setSelectedCropId(id)}
+                              className={`min-h-[38px] rounded-xl border px-3.5 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                                active
+                                  ? 'border-[#84E12B] bg-[#163F24] text-[#9FE855]'
+                                  : 'border-white/15 bg-[#05130A] text-[#CFE0D3] hover:border-[#84E12B]/50 hover:text-white'
+                              }`}
+                            >
+                              {comp.label}
+                            </button>
+                          );
+                        })}
+                  </div>
 
-                  <Tooltip content={<SeasonalTooltip />} />
+                  {/* Custom single-line legend matching series colors */}
+                  <div className="flex flex-wrap items-center gap-4 text-xs">
+                    {activeSeries.map((series) => (
+                      <span key={series.key} className="inline-flex items-center gap-2 text-[#E5F0E7]">
+                        <span
+                          aria-hidden="true"
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: series.color }}
+                        />
+                        <span className="font-medium whitespace-nowrap">{series.label}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
-                  {activeSeries.map((series) => (
-                    <Area
-                      key={series.key}
-                      type="monotone"
-                      dataKey={series.key}
-                      name={series.label}
-                      stroke={series.color}
-                      strokeWidth={2.4}
-                      fillOpacity={1}
-                      fill={`url(#grad-${viewMode}-${series.key})`}
-                      activeDot={{ r: 5, strokeWidth: 0, fill: series.color }}
-                      animationDuration={450}
-                    />
-                  ))}
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+                {/* Subtitle for selected view */}
+                <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="text-sm font-medium text-white">
+                    {viewMode === 'state'
+                      ? `${activeState.stateName} State — ${activeState.corridorTagline}`
+                      : `${activeComparison.label} — Cross-State Harvest Continuity`}
+                  </p>
+                  <span className="text-xs text-[#9DBBA5]">
+                    Monthly Regional Supply Availability (0–100 Index)
+                  </span>
+                </div>
 
-            {/* Hairline-divided Insight Ledger + Waitlist CTA */}
+                {/* Recharts AreaChart with explicit height container */}
+                <div className="mt-5 h-[320px] w-full" data-testid="recharts-seasonal-container">
+                  <ResponsiveContainer width="100%" height={320}>
+                    <AreaChart
+                      data={chartData}
+                      margin={{ top: 12, right: 12, left: -16, bottom: 4 }}
+                    >
+                      <defs>
+                        {activeSeries.map((series) => (
+                          <linearGradient
+                            key={series.key}
+                            id={`grad-${viewMode}-${series.key}`}
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop offset="5%" stopColor={series.color} stopOpacity={0.34} />
+                            <stop offset="95%" stopColor={series.color} stopOpacity={0.02} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+
+                      <CartesianGrid
+                        stroke="rgba(255,255,255,0.08)"
+                        strokeDasharray="4 4"
+                        vertical={false}
+                      />
+
+                      <XAxis
+                        dataKey="month"
+                        stroke="#89A991"
+                        tick={{ fill: '#A8C2AF', fontSize: 12 }}
+                        axisLine={{ stroke: 'rgba(255,255,255,0.12)' }}
+                        tickLine={false}
+                      />
+
+                      <YAxis
+                        domain={[0, 100]}
+                        ticks={[0, 25, 50, 75, 100]}
+                        stroke="#89A991"
+                        tick={{ fill: '#A8C2AF', fontSize: 12 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+
+                      <Tooltip content={<SeasonalTooltip />} />
+
+                      {activeSeries.map((series) => (
+                        <Area
+                          key={series.key}
+                          type="monotone"
+                          dataKey={series.key}
+                          name={series.label}
+                          stroke={series.color}
+                          strokeWidth={2.4}
+                          fillOpacity={1}
+                          fill={`url(#grad-${viewMode}-${series.key})`}
+                          activeDot={{ r: 5, strokeWidth: 0, fill: series.color }}
+                          animationDuration={450}
+                        />
+                      ))}
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Hairline-divided Insight Ledger + Waitlist CTA */}
             <div className="mt-6 grid grid-cols-1 items-center gap-6 border-t border-white/10 pt-6 lg:grid-cols-12">
               <div className="grid grid-cols-3 divide-x divide-white/10 lg:col-span-5">
                 <div className="pr-3">
@@ -337,6 +428,8 @@ export function SeasonalAvailabilityChart({
                 </button>
               </div>
             </div>
+              </div>
+            )}
           </div>
         </SoftReveal>
       </div>

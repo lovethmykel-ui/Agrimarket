@@ -1,9 +1,28 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowRight, Check, Sprout } from 'lucide-react';
+import {
+  ArrowRight,
+  Beef,
+  Bird,
+  Check,
+  Citrus,
+  Fish,
+  Leaf,
+  Sprout,
+  Wheat,
+} from 'lucide-react';
 import { PRODUCE_CATALOG } from '../data/content';
 import { SoftReveal, StaggerGrid, StaggerItem } from './MotionPrimitives';
 import type { ProduceCategoryId } from '../utils/waitlist';
+
+const CATEGORY_WATERMARKS: Record<ProduceCategoryId, typeof Leaf> = {
+  vegetables: Leaf,
+  fruits: Citrus,
+  grains: Wheat,
+  livestock: Beef,
+  poultry: Bird,
+  fish: Fish,
+};
 
 interface CategoriesSectionProps {
   selectedCategories: ProduceCategoryId[];
@@ -21,6 +40,7 @@ export function CategoriesSection({
   const activeCategory =
     PRODUCE_CATALOG.find((item) => item.id === activeCategoryId) ?? PRODUCE_CATALOG[0];
   const isSelectedForWaitlist = selectedCategories.includes(activeCategory.id);
+  const ActiveCategoryWatermark = CATEGORY_WATERMARKS[activeCategory.id];
 
   return (
     <section id="categories" className="scroll-mt-20 border-t border-white/5 bg-[#081C10] py-18 sm:py-24">
@@ -116,8 +136,12 @@ export function CategoriesSection({
         {/* Interactive Category Sourcing Detail Strip with soft motion blur transition */}
         <div
           data-testid="category-preview-panel"
-          className="editorial-surface mt-6 rounded-2xl border editorial-hairline p-6"
+          className="editorial-surface relative mt-6 overflow-hidden rounded-2xl border editorial-hairline p-6"
         >
+          <ActiveCategoryWatermark
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-4 -bottom-4 h-32 w-32 text-[#84E12B]/[0.06]"
+          />
           <AnimatePresence mode="wait">
             <motion.div
               key={activeCategory.id}
@@ -125,7 +149,7 @@ export function CategoriesSection({
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -6, filter: 'blur(7px)' }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center"
+              className="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-center"
             >
               <div className="max-w-2xl">
                 <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-[#9FE855]">

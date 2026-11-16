@@ -40,6 +40,7 @@ const INITIAL_STATS: WaitlistStats = {
 
 export default function App() {
   const [stats, setStats] = useState<WaitlistStats>(INITIAL_STATS);
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [selectedRole, setSelectedRole] = useState<WaitlistRole>('buyer');
   const [selectedCategories, setSelectedCategories] = useState<ProduceCategoryId[]>([
     'vegetables',
@@ -59,6 +60,11 @@ export default function App() {
       })
       .catch(() => {
         // Keep initial deterministic baseline if stats endpoint is temporarily unreachable
+      })
+      .finally(() => {
+        if (active) {
+          setIsStatsLoading(false);
+        }
       });
 
     return () => {
@@ -121,10 +127,12 @@ export default function App() {
           />
 
           <SeasonalAvailabilityChart
+            isLoading={isStatsLoading}
             onSelectStateAndScroll={handleSelectStateAndScroll}
           />
 
           <NigeriaDensityMap
+            isLoading={isStatsLoading}
             liveByState={stats.byState ?? {}}
             onSelectStateAndScroll={handleSelectStateAndScroll}
           />
@@ -135,6 +143,7 @@ export default function App() {
 
           <WaitlistAndAppSection
             stats={stats}
+            isStatsLoading={isStatsLoading}
             selectedRole={selectedRole}
             onRoleChange={setSelectedRole}
             selectedCategories={selectedCategories}

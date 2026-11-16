@@ -3,21 +3,21 @@ import assert from 'node:assert/strict';
 import {
   buildDensityNodes,
   MAP_BOUNDS,
-  NIGERIA_BORDER_PATH,
   NIGERIA_STATE_NODES,
 } from './nigeriaDensityData';
+import { NIGERIA_SVG_STATES } from './nigeriaSvgPaths';
 
-test('all Nigeria state nodes project cleanly within SVG bounds', () => {
-  assert.ok(NIGERIA_BORDER_PATH.startsWith('M'));
-  assert.ok(NIGERIA_STATE_NODES.length >= 12);
+test('all 37 Nigerian state SVG paths and 16 hub markers sit inside SVG bounds', () => {
+  assert.equal(NIGERIA_SVG_STATES.length, 37);
+  assert.ok(NIGERIA_STATE_NODES.length >= 16);
 
   for (const node of NIGERIA_STATE_NODES) {
     assert.ok(
-      node.x > 40 && node.x < MAP_BOUNDS.width - 40,
+      node.x > 20 && node.x < MAP_BOUNDS.width - 20,
       `${node.stateName} x=${node.x} out of bounds`
     );
     assert.ok(
-      node.y > 40 && node.y < MAP_BOUNDS.height - 40,
+      node.y > 20 && node.y < MAP_BOUNDS.height - 20,
       `${node.stateName} y=${node.y} out of bounds`
     );
     assert.ok(node.baseFarmers > 0 && node.baseBuyers > 0);
